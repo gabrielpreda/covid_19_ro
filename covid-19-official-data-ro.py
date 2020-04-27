@@ -30,7 +30,8 @@ url_data =\
      ('2020-04-23', "23-aprilie-2020-ora-13-00/"),
      ('2020-04-24', "24-aprilie-2020-ora-13-00/"),
      ('2020-04-25', "25-aprilie-2020-ora-13-00/"),
-     ('2020-04-26', "26-aprilie-2020-ora-13-00/")
+     ('2020-04-26', "26-aprilie-2020-ora-13-00/"),
+     ('2020-04-27', "27-aprilie-2020-ora-13-00/")
     ]
 
 def get_ati_patients(paragraphs):
@@ -40,7 +41,7 @@ def get_quarantine(paragraphs):
     return get_item(paragraphs, "în carantină instituționalizată sunt+(.[ 0-9.]*)")
         
 def get_isolation(paragraphs):
-    return get_item(paragraphs, "de persoane. Alte +(.[ 0-9.]*)")
+    return get_item(paragraphs, "persoane. Alte +(.[ 0-9.]*)")
         
 def get_tests(paragraphs):
     return get_item(paragraphs, "Până la această dată, la nivel național, au fost prelucrate+(.[ 0-9.]*)")
@@ -84,6 +85,16 @@ def check_number_of_counties(all_data_df):
     except Exception as ex:
         print(f"Error: {ex}")
 
+def fix_decimal(data):
+    data = str(data)
+    data = data.replace(".", "")
+    try:
+        data = int(data)
+    except:
+        data = 0
+        
+    return data
+    
         
 def data_cleaning(all_data_df, country_data_df):
     
@@ -92,17 +103,21 @@ def data_cleaning(all_data_df, country_data_df):
     # replace - in Confirmed
     all_data_df.loc[all_data_df['Confirmed']=='–', 'Confirmed'] = 0
     # fix decimal point
-    all_data_df['Confirmed'] = all_data_df['Confirmed'].astype(str)
-    all_data_df['Confirmed'] = all_data_df['Confirmed'].apply(lambda x: x.replace(".", ""))
-    all_data_df['Confirmed'] = all_data_df['Confirmed'].astype(int)
+    all_data_df['Confirmed'] = all_data_df['Confirmed'].apply(lambda x: fix_decimal(x))
+    
+    #all_data_df['Confirmed'] = all_data_df['Confirmed'].astype(str)
+    #all_data_df['Confirmed'] = all_data_df['Confirmed'].apply(lambda x: x.replace(".", ""))
+    #all_data_df['Confirmed'] = all_data_df['Confirmed'].astype(int)
 
     # fix decimal point
     country_data_df.loc[country_data_df['quarantine']==' ', 'quarantine'] = 0
     for feature in ['ati', 'quarantine', 'isolation', 'tests']:
-        country_data_df[feature] = country_data_df[feature].astype(str)
-        country_data_df[feature] = country_data_df[feature].apply(lambda x: x.replace(".", ""))
-        country_data_df[feature] = country_data_df[feature].astype(int)
-
+        
+        #country_data_df[feature] = country_data_df[feature].astype(str)
+        #country_data_df[feature] = country_data_df[feature].apply(lambda x: x.replace(".", ""))
+        #country_data_df[feature] = country_data_df[feature].astype(int)
+        country_data_df[feature] = country_data_df[feature].apply(lambda x: fix_decimal(x))
+        
     return all_data_df, country_data_df
 
         
