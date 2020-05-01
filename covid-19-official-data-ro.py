@@ -27,11 +27,15 @@ def compose_current_date_url(crt_day):
 
     # exception treatment
     if(current_date == "2020-04-02"):
-               current_url = '%d-%s-ora-13-00/' % (crt_day.day, months[crt_day.month  - 1])
+        current_url = '%d-%s-ora-13-00/' % (crt_day.day, months[crt_day.month  - 1])
     if(current_date in ["2020-04-07", "2020-04-17"]):
-           current_url = '%d-%s-%d-ora-13-00-2/' % (crt_day.day - 1, months[crt_day.month - 1], crt_day.year)
+        current_url = '%d-%s-%d-ora-13-00-2/' % (crt_day.day - 1, months[crt_day.month - 1], crt_day.year)
     
     composed_url = f"{url_base}{current_url}"
+    
+    if(current_date == "2020-05-01"):
+        composed_url = "https://www.mai.gov.ro/21331-2/"    
+
     return current_date, composed_url
 
 def parse_content():        
