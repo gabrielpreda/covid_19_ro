@@ -17,6 +17,16 @@ def get_isolation(paragraphs):
 def get_tests(paragraphs):
     return get_item(paragraphs, "Până la această dată, la nivel național, au fost prelucrate+(.[ 0-9.]*)")
 
+def get_confirmed(paragraphs):
+    return get_item(paragraphs, "pe teritoriul României, au fost confirmate+(.[ 0-9.]*)")
+
+def get_recovered(paragraphs):
+    return get_item(paragraphs, "Dintre persoanele confirmate pozitiv,+(.[ 0-9.]*)")
+
+def get_deaths(paragraphs):
+    return get_item(paragraphs, "Totodată, până acum,+(.[ 0-9.]*)")
+
+
 def compose_current_date_url(crt_day):
     url_base = "https://www.mai.gov.ro/informare-covid-19-grupul-de-comunicare-strategica-"
     months = ['ianuarie', 'februarie', 'martie', 'aprilie', 'mai', 'iunie',
@@ -46,8 +56,8 @@ def parse_content():
     crt_day = dt.datetime.strptime("2020-04-02", "%Y-%m-%d")
     end_day = dt.datetime.now()
     delta = dt.timedelta(days=1)
-    while crt_day <= end_day:
-        crt_day += delta
+    while crt_day < end_day:
+
         current_date, composed_url = compose_current_date_url(crt_day)
         paragraphs, tables = hp.parse_url(composed_url)
 
@@ -67,10 +77,17 @@ def parse_content():
         quarantine = get_quarantine(paragraphs)
         isolation = get_isolation(paragraphs)
         tests = get_tests(paragraphs)  
+        confirmed = get_confirmed(paragraphs)
+        recovered = get_recovered(paragraphs)
+        deaths = get_deaths(paragraphs)
         country_data_df = country_data_df.append(pd.DataFrame({'date':current_date, 'ati': ati,\
-                                        'quarantine': quarantine, 'isolation': isolation, 'tests': tests}, index=[0]))
+                                        'quarantine': quarantine, 'isolation': isolation, 'tests': tests,\
+                                        'confirmed':confirmed, 'recovered': recovered, 'deaths': deaths}, index=[0]))
     
+        crt_day += delta
+        
     all_data_df.columns = ['No', 'County', 'Confirmed', 'Date']
+
     return all_data_df, country_data_df
 
 
@@ -113,7 +130,8 @@ def data_cleaning(all_data_df, country_data_df):
 
     # fix decimal point for multiple data
     country_data_df.loc[country_data_df['quarantine']==' ', 'quarantine'] = 0
-    for feature in ['ati', 'quarantine', 'isolation', 'tests']:
+    country_data_df.loc[country_data_df['deaths']==' ', 'deaths'] = 0
+    for feature in ['ati', 'quarantine', 'isolation', 'tests', 'deaths']:
         country_data_df[feature] = country_data_df[feature].apply(lambda x: fix_decimal(x))
         
     return all_data_df, country_data_df
