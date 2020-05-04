@@ -130,8 +130,10 @@ def data_cleaning(all_data_df, country_data_df):
 
     # fix decimal point for multiple data
     country_data_df.loc[country_data_df['quarantine']==' ', 'quarantine'] = 0
+    country_data_df.loc[country_data_df['confirmed']==' ', 'confirmed'] = 0
+    country_data_df.loc[country_data_df['recovered']==' ', 'recovered'] = 0
     country_data_df.loc[country_data_df['deaths']==' ', 'deaths'] = 0
-    for feature in ['ati', 'quarantine', 'isolation', 'tests', 'deaths']:
+    for feature in ['ati', 'quarantine', 'isolation', 'tests', 'confirmed', 'recovered', 'deaths']:
         country_data_df[feature] = country_data_df[feature].apply(lambda x: fix_decimal(x))
         
     return all_data_df, country_data_df
