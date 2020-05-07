@@ -69,7 +69,9 @@ def parse_content():
         #remove headers & footers
         payload_table = payload_table.iloc[1:]
         payload_table = payload_table.iloc[:-1]
-        all_data_df = all_data_df.append(payload_table)
+        #check the payload table dimmension - 
+        if(len(payload_table.columns)==4):
+            all_data_df = all_data_df.append(payload_table)
 
 
         # Process paragraph data - to extract country-level data
