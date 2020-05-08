@@ -45,6 +45,9 @@ def compose_current_date_url(crt_day):
     
     if(current_date == "2020-05-01"):
         composed_url = "https://www.mai.gov.ro/21331-2/"    
+    
+    if(current_date == "2020-05-08"):
+        composed_url = "https://www.mai.gov.ro/21402-2/"
 
     return current_date, composed_url
 
