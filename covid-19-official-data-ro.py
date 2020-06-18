@@ -24,8 +24,10 @@ def get_recovered(paragraphs):
     return get_item(paragraphs, "Dintre persoanele confirmate pozitiv,+(.[ 0-9.]*)")
 
 def get_deaths(paragraphs):
-    return get_item(paragraphs, "Totodată, până acum,+(.[ 0-9.]*)")
+    return  get_item(paragraphs, "Totodată, până acum,+(.[ 0-9.]*)")
 
+def get_deaths_incremental(paragraphs):
+    return  get_item(paragraphs, "au fost înregistrate+(.[ 0-9.]*)")
 
 def compose_current_date_url(crt_day):
     url_base = "https://www.mai.gov.ro/informare-covid-19-grupul-de-comunicare-strategica-"
@@ -56,9 +58,12 @@ def parse_content():
     all_data_df = pd.DataFrame()
     country_data_df = pd.DataFrame()
 
-    crt_day = dt.datetime.strptime("2020-04-02", "%Y-%m-%d")
+    #crt_day = dt.datetime.strptime("2020-04-02", "%Y-%m-%d")
+    crt_day = dt.datetime.strptime("2020-06-08", "%Y-%m-%d")
     end_day = dt.datetime.now()
     delta = dt.timedelta(days=1)
+	
+    previous_death = 0
     while crt_day < end_day:
 
         current_date, composed_url = compose_current_date_url(crt_day)
@@ -84,7 +89,14 @@ def parse_content():
         tests = get_tests(paragraphs)  
         confirmed = get_confirmed(paragraphs)
         recovered = get_recovered(paragraphs)
-        deaths = get_deaths(paragraphs)
+        if(crt_day) > dt.datetime.strptime("2020-06-10", "%Y-%m-%d"):
+            deaths = get_deaths_incremental(paragraphs)
+            print(f"Not processed: deaths: {deaths} previous: {previous_death}")
+            deaths = int(fix_decimal(deaths)) + previous_death
+        else:
+            deaths = int(fix_decimal(get_deaths(paragraphs)))
+        print(f"deaths: {deaths} previous: {previous_death}")
+        previous_death = deaths
         country_data_df = country_data_df.append(pd.DataFrame({'date':current_date, 'ati': ati,\
                                         'quarantine': quarantine, 'isolation': isolation, 'tests': tests,\
                                         'confirmed':confirmed, 'recovered': recovered, 'deaths': deaths}, index=[0]))
