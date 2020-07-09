@@ -6,28 +6,28 @@ from content_parser.regex_parser import get_item
 
 
 def get_ati_patients(paragraphs):
-    return get_item(paragraphs, "La ATI, în acest moment, sunt internați+(.[0-9]*)")
+    return get_item(paragraphs, ["La ATI, în acest moment, sunt internați+(.[0-9]*)"])
 
 def get_quarantine(paragraphs):
-    return get_item(paragraphs, "în carantină instituționalizată sunt+(.[ 0-9.]*)")
+    return get_item(paragraphs, ["în carantină instituționalizată sunt+(.[ 0-9.]*)"])
         
 def get_isolation(paragraphs):
-    return get_item(paragraphs, "persoane. Alte +(.[ 0-9.]*)")
+    return get_item(paragraphs, ["persoane. Alte +(.[ 0-9.]*)"])
         
 def get_tests(paragraphs):
-    return get_item(paragraphs, "Până la această dată, la nivel național, au fost prelucrate+(.[ 0-9.]*)")
+    return get_item(paragraphs, ["Până la această dată, la nivel național, au fost prelucrate+(.[ 0-9.]*)"])
 
 def get_confirmed(paragraphs):
-    return get_item(paragraphs, "pe teritoriul României, au fost confirmate+(.[ 0-9.]*)")
+    return get_item(paragraphs, ["pe teritoriul României, au fost confirmate+(.[ 0-9.]*)"])
 
 def get_recovered(paragraphs):
-    return get_item(paragraphs, "Dintre persoanele confirmate pozitiv,+(.[ 0-9.]*)")
+    return get_item(paragraphs, ["Dintre persoanele confirmate pozitiv,+(.[ 0-9.]*)"])
 
 def get_deaths(paragraphs):
-    return  get_item(paragraphs, "Totodată, până acum,+(.[ 0-9.]*)")
+    return  get_item(paragraphs, ["Totodată, până acum,+(.[ 0-9.]*)", "Până astăzi,+(.[ 0-9.]*) persoane diagnosticate cu infecție cu COVID-19 au decedat"])
 
 def get_deaths_incremental(paragraphs):
-    return  get_item(paragraphs, "au fost înregistrate+(.[ 0-9.]*)")
+    return  get_item(paragraphs, ["au fost înregistrate+(.[ 0-9.]*)"])
 
 def compose_current_date_url(crt_day):
     url_base = "https://www.mai.gov.ro/informare-covid-19-grupul-de-comunicare-strategica-"
@@ -58,7 +58,8 @@ def parse_content():
     all_data_df = pd.DataFrame()
     country_data_df = pd.DataFrame()
 
-    crt_day = dt.datetime.strptime("2020-04-02", "%Y-%m-%d")
+    #crt_day = dt.datetime.strptime("2020-04-02", "%Y-%m-%d")
+    crt_day = dt.datetime.strptime("2020-06-05", "%Y-%m-%d")
 
     end_day = dt.datetime.now()
     delta = dt.timedelta(days=1)
@@ -72,7 +73,7 @@ def parse_content():
         # Process table data - to extract county-level data
         # retain only the first table
         payload_table = tables[0]
-        print(f"current date: {current_date}, table rows: {payload_table.shape[0]}")
+        print(f"current date: {current_date}, table rows: {payload_table.shape[0]}, {len(tables)}")
         payload_table['date'] = current_date
         #remove headers & footers
         payload_table = payload_table.iloc[1:]
@@ -89,7 +90,7 @@ def parse_content():
         tests = get_tests(paragraphs)  
         confirmed = get_confirmed(paragraphs)
         recovered = get_recovered(paragraphs)
-        if(crt_day) > dt.datetime.strptime("2020-06-10", "%Y-%m-%d"):
+        if crt_day > dt.datetime.strptime("2020-06-10", "%Y-%m-%d") and crt_day < dt.datetime.strptime("2020-06-29", "%Y-%m-%d"):
             deaths = get_deaths_incremental(paragraphs)
             print(f"Not processed: deaths: {deaths} previous: {previous_death}")
             deaths = int(fix_decimal(deaths)) + previous_death
