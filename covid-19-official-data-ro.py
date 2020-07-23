@@ -65,8 +65,8 @@ def parse_content():
     all_data_df = pd.DataFrame()
     country_data_df = pd.DataFrame()
 
-    #crt_day = dt.datetime.strptime("2020-04-02", "%Y-%m-%d")
-    crt_day = dt.datetime.strptime("2020-06-05", "%Y-%m-%d")
+    crt_day = dt.datetime.strptime("2020-04-02", "%Y-%m-%d")
+    #crt_day = dt.datetime.strptime("2020-06-05", "%Y-%m-%d")
 
     end_day = dt.datetime.now()
     delta = dt.timedelta(days=1)
