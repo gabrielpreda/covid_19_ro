@@ -21,7 +21,7 @@ def get_confirmed(paragraphs):
     return get_item(paragraphs, ["pe teritoriul României, au fost confirmate+(.[ 0-9.]*)"])
 
 def get_recovered(paragraphs):
-    return get_item(paragraphs, ["Dintre persoanele confirmate pozitiv,+(.[ 0-9.]*)"])
+    return get_item(paragraphs, ["Dintre persoanele confirmate pozitiv,+(.[ 0-9.]*)", "(^[ 0-9.]*)+ de pacienți au fost declarați vindecați"])
 
 def get_deaths(paragraphs):
     return  get_item(paragraphs, ["Totodată, până acum,+(.[ 0-9.]*)", "Până astăzi,+(.[ 0-9.]*) persoane diagnosticate cu infecție cu COVID-19 au decedat"])
@@ -102,7 +102,7 @@ def parse_content():
             deaths = int(fix_decimal(deaths)) + previous_death
         else:
             deaths = int(fix_decimal(get_deaths(paragraphs)))
-        print(f"deaths: {deaths} previous: {previous_death} {ati} {quarantine} {isolation} {tests}")
+        print(f"deaths: {deaths} previous: {previous_death} {ati} {quarantine} {isolation} {recovered} {tests}")
         previous_death = deaths
         country_data_df = country_data_df.append(pd.DataFrame({'date':current_date, 'ati': ati,\
                                         'quarantine': quarantine, 'isolation': isolation, 'tests': tests,\
