@@ -42,7 +42,13 @@ def compose_current_date_url(crt_day):
         current_url = '%d-%s-ora-13-00/' % (crt_day.day, months[crt_day.month  - 1])
     if(current_date in ["2020-04-07", "2020-04-17"]):
         current_url = '%d-%s-%d-ora-13-00-2/' % (crt_day.day - 1, months[crt_day.month - 1], crt_day.year)
-    
+
+    if (crt_day >= dt.datetime.strptime("2020-07-01", "%Y-%m-%d")) &\
+        (crt_day < dt.datetime.strptime("2020-07-04", "%Y-%m-%d")):
+        current_url = '%02d-%s-ora-13-00/' % (crt_day.day, months[crt_day.month - 1])  
+    elif (crt_day >= dt.datetime.strptime("2020-07-04", "%Y-%m-%d")):
+        current_url = '%d-%s-ora-13-00/' % (crt_day.day, months[crt_day.month - 1])
+        
     composed_url = f"{url_base}{current_url}"
     
     if(current_date == "2020-05-01"):
@@ -51,6 +57,7 @@ def compose_current_date_url(crt_day):
     if(current_date == "2020-05-08"):
         composed_url = "https://www.mai.gov.ro/21402-2/"
 
+        
     return current_date, composed_url
 
 def parse_content():        
@@ -69,7 +76,6 @@ def parse_content():
 
         current_date, composed_url = compose_current_date_url(crt_day)
         paragraphs, tables = hp.parse_url(composed_url)
-
         # Process table data - to extract county-level data
         # retain only the first table
         payload_table = tables[0]
@@ -96,7 +102,7 @@ def parse_content():
             deaths = int(fix_decimal(deaths)) + previous_death
         else:
             deaths = int(fix_decimal(get_deaths(paragraphs)))
-        print(f"deaths: {deaths} previous: {previous_death}")
+        print(f"deaths: {deaths} previous: {previous_death} {ati} {quarantine} {isolation} {tests}")
         previous_death = deaths
         country_data_df = country_data_df.append(pd.DataFrame({'date':current_date, 'ati': ati,\
                                         'quarantine': quarantine, 'isolation': isolation, 'tests': tests,\
